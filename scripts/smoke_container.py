@@ -77,7 +77,11 @@ def smoke(image: str) -> None:
             docker("exec", name, "python", "-c",
                    "import os; from pathlib import Path; assert os.getuid() != 0; "
                    "assert all(not Path('/app', p).exists() for p in "
-                   "['eval', 'snapshots', 'snapshots_zip', 'results', '.env', '.git', 'starter']); "
+                   "['eval', 'snapshots', 'snapshots_zip', 'results', '.env', '.git', 'starter', "
+                   "'backend/tests', 'frontend/src', 'frontend/node_modules']); "
+                   "assert Path('/app/frontend/dist/index.html').is_file(); "
+                   "assert Path('/app/backend/server/app.py').is_file(); "
+                   "assert Path('/app/backend/submission/solution.py').is_file(); "
                    "assert sorted(p.name for p in Path('/app/harness').iterdir()) == ['contract.py']")
             print("Container passed: frontend assets, readiness, answer, guidance, conflicts, nonroot runtime, and private-data exclusion.")
         finally:

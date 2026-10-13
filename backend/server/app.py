@@ -14,13 +14,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from server.kit import read_snapshots
-from submission.knowledge.adapters.contract import Answer, Conflict, Snapshot
-from submission.knowledge.models.domain import QuestionFeedback
-from submission.solution import build
+from backend.server.kit import read_snapshots
+from backend.submission.knowledge.adapters.contract import Answer, Conflict, Snapshot
+from backend.submission.knowledge.models.domain import QuestionFeedback
+from backend.submission.solution import build
 
 LOGGER = logging.getLogger(__name__)
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 class Engine(Protocol):
@@ -151,13 +151,13 @@ def create_app(
     def conflicts():
         return [asdict(conflict) for conflict in require_engine().conflicts()]
 
-    assets = static_root if static_root is not None else ROOT / "web" / "dist"
+    assets = static_root if static_root is not None else ROOT / "frontend" / "dist"
     if assets.is_dir():
         app.mount("/", StaticFiles(directory=assets, html=True), name="frontend")
     else:
         @app.get("/")
         def frontend_missing():
-            return {"message": "Build the browser app with npm ci && npm run build in web/, then restart the server."}
+            return {"message": "Build the browser app with npm ci && npm run build in frontend/, then restart the server."}
     return app
 
 

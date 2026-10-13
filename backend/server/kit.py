@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Iterator
 from zipfile import ZipFile
 
-from submission.knowledge.adapters.contract import Page, Snapshot
+from backend.submission.knowledge.adapters.contract import Page, Snapshot
 
 
 def _inside(root: Path, relative: str) -> Path:

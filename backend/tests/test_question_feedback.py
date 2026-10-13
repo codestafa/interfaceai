@@ -2,9 +2,9 @@ import pytest
 
 from fastapi.testclient import TestClient
 
-from server.app import create_app
-from submission.knowledge.adapters.contract import Snapshot
-from submission.solution import build
+from backend.server.app import create_app
+from backend.submission.knowledge.adapters.contract import Snapshot
+from backend.submission.solution import build
 
 
 def engine():

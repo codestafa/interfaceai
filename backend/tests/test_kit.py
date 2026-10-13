@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 import pytest
 
-from server.kit import read_snapshots, unpack_snapshots
+from backend.server.kit import read_snapshots, unpack_snapshots
 
 
 def test_snapshots_are_complete_and_sorted_by_date(write_snapshot):

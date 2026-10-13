@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from submission.knowledge.adapters.contract import Page, Snapshot
-from submission.solution import build
+from backend.submission.knowledge.adapters.contract import Page, Snapshot
+from backend.submission.solution import build
 
 
 def deposit_engine():

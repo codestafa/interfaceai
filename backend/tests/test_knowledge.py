@@ -5,10 +5,10 @@ from datetime import date
 
 import pytest
 
-from submission.solution import build
-from submission.knowledge.adapters.contract import Answer, Page, Snapshot
-from submission.knowledge.models.domain import Evidence, Fact
-from submission.knowledge.services.resolution import choose, detect_conflicts
+from backend.submission.solution import build
+from backend.submission.knowledge.adapters.contract import Answer, Page, Snapshot
+from backend.submission.knowledge.models.domain import Evidence, Fact
+from backend.submission.knowledge.services.resolution import choose, detect_conflicts
 
 AUTO_URL = "https://www.dupaco.com/personal/loans/auto-motorcycle-loans"
 
