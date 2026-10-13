@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(git rev-parse --show-toplevel)
+zero=0000000000000000000000000000000000000000
+
+while read -r local_ref local_oid remote_ref remote_oid; do
+  if [ "$remote_ref" = refs/heads/main ]; then
+    echo 'Direct pushes to main are blocked locally. Open and review a pull request.' >&2
+    exit 1
+  fi
+  if [ "$local_oid" = "$zero" ]; then
+    continue
+  fi
+  # Check every unpublished commit, not only the branch tip.
+  for commit in $(git rev-list "$local_oid" --not --remotes); do
+    python3 "$repo_root/scripts/check_publication.py" --repo "$repo_root" --ref "$commit"
+  done
+done
