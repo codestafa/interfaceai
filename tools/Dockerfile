@@ -21,11 +21,11 @@ RUN pip install --no-cache-dir -r backend/requirements.txt \
     && groupadd --gid 10001 knowledge \
     && useradd --uid 10001 --gid knowledge --no-create-home knowledge
 
-COPY --chown=10001:10001 harness/contract.py ./harness/contract.py
+COPY --chown=10001:10001 backend/harness/contract.py ./backend/harness/contract.py
 COPY --chown=10001:10001 backend/__init__.py ./backend/__init__.py
 COPY --chown=10001:10001 backend/submission ./backend/submission
 COPY --chown=10001:10001 backend/server ./backend/server
-COPY --chown=10001:10001 scripts/import_kit.py ./scripts/import_kit.py
+COPY --chown=10001:10001 tools/import_kit.py ./tools/import_kit.py
 COPY --from=frontend --chown=10001:10001 /build/frontend/dist ./frontend/dist
 
 USER 10001:10001

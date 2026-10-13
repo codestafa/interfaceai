@@ -3,7 +3,7 @@ services:
     image: knowledge-desk:local
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: tools/Dockerfile
     ports:
       - "127.0.0.1:${KNOWLEDGE_PORT:-8080}:8000"
     environment:

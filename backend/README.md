@@ -7,7 +7,7 @@ Run these commands from the **repository root**:
 ```sh
 python3.11 -m venv .venv
 .venv/bin/python -m pip install -r backend/requirements-dev.txt
-.venv/bin/python scripts/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
+.venv/bin/python tools/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
 .venv/bin/python -m uvicorn backend.server.app:app --host 127.0.0.1 --port 8000 --workers 1
 ```
 
@@ -20,16 +20,18 @@ For the browser interface, run `npm ci --prefix frontend` and `npm run build --p
 - `server/`: request validation, readiness, static assets, and local kit loading.
 - `submission/solution.py`: evaluator-compatible `build()` entrypoint.
 - `submission/knowledge/`: models, parsing and resolution services, controller, presenters, and the contract adapter.
+- `harness/contract.py`: published interface dataclasses.
 - `tests/`: synthetic knowledge-core and HTTP checks.
-- `requirements.txt` and `requirements-dev.txt`: dependency versions; root declarations forward here.
+- `pyproject.toml`: Python metadata and pytest configuration for application and tooling tests.
+- `requirements.txt` and `requirements-dev.txt`: runtime and development dependency versions.
 
 Keep `submission/` portable: the evaluator can load it independently of the HTTP server. Business rules belong in the knowledge core and are shared by HTTP answers, inline guidance, and evaluator calls.
 
 ## Verify
 
 ```sh
-.venv/bin/python -m pytest backend/tests -q
+.venv/bin/python -m pytest -c backend/pyproject.toml backend/tests -q
 .venv/bin/python harness/run_eval.py --submission backend/submission --eval eval/public_eval.jsonl --out results/prototype
 ```
 
-The evaluator requires a locally imported participant kit and does not require a running server. Use `.venv/bin/python -m pytest -q` from the root to include repository-tooling tests. Evaluation outputs remain in ignored `results/`; do not commit private source material, evaluation answers, or credentials. See [recorded results and limitations](../docs/evaluation.md) and [source-selection rules](../NOTES.md).
+The evaluator requires a locally imported participant kit and does not require a running server. Use `.venv/bin/python -m pytest -c backend/pyproject.toml -q` from the root to include repository-tooling tests. Evaluation outputs remain in ignored `results/`; do not commit private source material, evaluation answers, or credentials. See [recorded results and limitations](../docs/evaluation.md) and [source-selection rules](../docs/NOTES.md).

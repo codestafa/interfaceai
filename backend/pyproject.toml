@@ -5,5 +5,5 @@ requires-python = ">=3.11"
 description = "An offline, source-grounded knowledge prototype"
 
 [tool.pytest.ini_options]
-testpaths = ["backend/tests", "tests"]
-pythonpath = ["."]
+testpaths = ["tests", "../tools/tests"]
+pythonpath = [".."]

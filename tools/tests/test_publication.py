@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 
-SCANNER = Path(__file__).resolve().parents[1] / "scripts" / "check_publication.py"
+SCANNER = Path(__file__).resolve().parents[1] / "check_publication.py"
 
 
 class PublicationTests(unittest.TestCase):
@@ -37,7 +37,7 @@ class PublicationTests(unittest.TestCase):
 
     def test_safe_code_and_contract_can_be_published(self):
         self.stage("submission/solution.py", "def build(): return None\n")
-        self.stage("harness/contract.py", "class Answer: pass\n")
+        self.stage("backend/harness/contract.py", "class Answer: pass\n")
         self.stage("docs/clean notes.md", "No network calls or external credentials are needed.\n")
         self.assertEqual(self.scan().returncode, 0)
 
@@ -58,7 +58,8 @@ class PublicationTests(unittest.TestCase):
     def test_denies_private_inputs_and_generated_artifacts(self):
         paths = (
             "snapshots/001/page.md", "snapshots_zip/input.txt", "eval/questions.json",
-            "starter/solution.py", "harness/scoring.py", "results/report.json", ".env.local",
+            "starter/solution.py", "harness/scoring.py", "harness/contract.py",
+            "backend/harness/scoring.py", "results/report.json", ".env.local",
             "secrets/settings.json", "credentials.json", "private-key.txt", "id_ed25519",
             "web/node_modules/pkg/index.js", "web/dist/index.html", ".venv/bin/python",
             "__pycache__/cache.pyc", "input.zip", "docs/assignment.md", "conversation-transcript.txt",

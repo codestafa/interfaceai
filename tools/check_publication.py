@@ -80,7 +80,7 @@ def private_path(path: str) -> bool:
     parts = normalized.parts
     if any(part in PRIVATE_DIRECTORIES or part.startswith((".venv", "venv")) for part in parts[:-1]):
         return True
-    if "harness" in parts and path != "harness/contract.py":
+    if "harness" in parts and path != "backend/harness/contract.py":
         return True
     if normalized.name.startswith(".env") and normalized.name != ".env.example":
         return True

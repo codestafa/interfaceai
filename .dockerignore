@@ -1,10 +1,9 @@
 # Default-deny build context. Keep private kit content and local configuration out.
 **
-!Dockerfile
 !.dockerignore
-!harness/
-!harness/contract.py
 !backend/
+!backend/harness/
+!backend/harness/contract.py
 !backend/__init__.py
 !backend/requirements.txt
 !backend/submission/
@@ -12,8 +11,9 @@
 !backend/submission/**/*.py
 !backend/server/
 !backend/server/*.py
-!scripts/
-!scripts/import_kit.py
+!tools/
+!tools/Dockerfile
+!tools/import_kit.py
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json

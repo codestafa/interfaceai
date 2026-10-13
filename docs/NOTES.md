@@ -2,7 +2,7 @@
 
 The browser and harness use one MVC knowledge core. Ingestion produces snapshot-specific evidence and indexes; the controller interprets a question, selects the historical state, resolves candidate facts, and asks a presenter to create the supplied harness dataclasses. The HTTP layer does not choose facts or reformat answers.
 
-The monorepo keeps React presentation in `frontend/` and Python application code in `backend/`. `backend/server/` delivers HTTP, while `backend/submission/` retains the portable grader entrypoint and its MVC package. The evaluator loads that directory directly; the browser calls the same controller through FastAPI. Shared repository tooling remains at the root. Moving the packages changes their paths, not their source-selection rules.
+The monorepo keeps React presentation in `frontend/` and Python application code in `backend/`. `backend/server/` delivers HTTP, while `backend/submission/` retains the portable grader entrypoint and its MVC package. The evaluator loads that directory directly; the browser calls the same controller through FastAPI. The published contract dataclasses live in `backend/harness/contract.py`. Shared repository tooling lives in `tools/`, and project guidance and verification records live in `docs/`. Moving the packages changes their paths, not their source-selection rules.
 
 ## Sources and dates
 

@@ -14,6 +14,6 @@ while read -r local_ref local_oid remote_ref remote_oid; do
   fi
   # Check every unpublished commit, not only the branch tip.
   for commit in $(git rev-list "$local_oid" --not --remotes); do
-    python3 "$repo_root/scripts/check_publication.py" --repo "$repo_root" --ref "$commit"
+    python3 "$repo_root/tools/check_publication.py" --repo "$repo_root" --ref "$commit"
   done
 done

@@ -22,7 +22,7 @@ The initial implementation was reviewed in three layers: `codex/knowledge-core` 
 
 Keep React presentation and frontend dependencies in `frontend/`. Put HTTP delivery, the shared knowledge core, application tests, and Python dependencies in `backend/`. The `backend/submission/` directory must remain independently loadable by the supplied evaluator; do not introduce imports from the HTTP server or frontend into it.
 
-Root `scripts/` and `tests/` cover repository tooling, publication checks, and private-kit import. Docker, Compose, CI, and the root test configuration coordinate both packages. Keep root Python requirements as thin compatibility wrappers; declare dependency versions in `backend/requirements*.txt`.
+`tools/` contains repository tooling, publication checks, private-kit import, the Dockerfile, local Git hooks, and tooling tests in `tools/tests/`. Compose and CI coordinate both packages. Declare Python dependency versions in `backend/requirements*.txt`; `backend/pyproject.toml` configures both test suites. From the repository root, run `python -m pytest -c backend/pyproject.toml -q`, or add `backend/tests` to run only backend tests. Keep contribution guidance, design notes, and verification records in `docs/`.
 
 ## Main-branch policy
 
@@ -33,7 +33,7 @@ The intended GitHub protection requires a pull request, one approving review, di
 Enable the local pre-push guard in each clone:
 
 ```sh
-git config core.hooksPath .githooks
+git config core.hooksPath tools/git-hooks
 ```
 
 The guard rejects direct pushes to `main` and scans every unpublished commit before feature-branch pushes. Hooks can be bypassed and do not protect merges through GitHub, so this is only a local safeguard while server-side protection is unavailable.
@@ -43,12 +43,12 @@ The guard rejects direct pushes to `main` and scans every unpublished commit bef
 Before every push, run:
 
 ```sh
-python3 scripts/check_publication.py
+python3 tools/check_publication.py
 ```
 
 This checks tracked/index content for restricted paths and recognizable credentials without printing their values. Review `git diff --cached --stat` and the staged diff as well. Use explicit file paths with `git add`; never force-add ignored participant materials. No automated scan can recognize every possible secret.
 
-Never commit `.env` files, API keys, credentials, archives, website snapshots, practice evaluation data, local result files, or the supplied assignment documents. The only included participant interface is `harness/contract.py`; import the rest of the official kit locally using the documented setup. Tests and CI use synthetic data. Do not upload private data as workflow artifacts or bake it into a container image.
+Never commit `.env` files, API keys, credentials, archives, website snapshots, practice evaluation data, local result files, or the supplied assignment documents. The only included participant interface is `backend/harness/contract.py`; import the rest of the official kit locally using the documented setup. Tests and CI use synthetic data. Do not upload private data as workflow artifacts or bake it into a container image.
 
 Use GitHub's noreply address for commit authorship if you do not want a personal email in Git history. Do not put secrets in commit messages, branch names, pull-request descriptions, or workflow logs.
 

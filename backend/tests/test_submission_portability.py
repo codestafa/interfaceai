@@ -12,7 +12,7 @@ def test_submission_loads_from_renamed_folder_outside_project(tmp_path):
     team = tmp_path / "renamed_team"
     shutil.copytree(root / "backend" / "submission", team, ignore=shutil.ignore_patterns("__pycache__"))
     (tmp_path / "harness").mkdir()
-    shutil.copy2(root / "harness" / "contract.py", tmp_path / "harness" / "contract.py")
+    shutil.copy2(root / "backend" / "harness" / "contract.py", tmp_path / "harness" / "contract.py")
     script = """
 import importlib.util
 import sys

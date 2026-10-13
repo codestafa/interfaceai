@@ -10,7 +10,7 @@ Describe the user-visible problem and resulting behavior. Include a concrete exa
 
 ## Publication review
 
-- [ ] Ran `python scripts/check_publication.py --index` before committing.
+- [ ] Ran `python tools/check_publication.py --index` before committing.
 - [ ] Reviewed the complete diff for credentials, private documents, and participant data.
 - [ ] Kept snapshots, supplied evaluator/starter code, archives, local results, and environment files out of Git.
 - [ ] Included only synthetic test fixtures and the required public evaluator contract.

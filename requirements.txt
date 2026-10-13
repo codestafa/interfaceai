@@ -1,2 +1,0 @@
-# Compatibility entrypoint for graders and root-level setup commands.
--r backend/requirements.txt
