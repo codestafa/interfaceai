@@ -10,9 +10,9 @@ Verified locally on Python 3.11.17 with the original supplied evaluator. The har
 | Evaluation errors | 0 | 0 |
 | Repeated-answer consistency | 1.0 | 1.0 |
 | Answer p95 | 0.12 s | 0.09 s |
-| Ingestion | <0.1 s | 4.1 s |
+| Ingestion | <0.1 s | 4.0 s |
 
-The latest public-evaluator rerun (October 13, 2026), after query validation and lowest-rate fixes, is in the ignored `results/edge-cases/evaluator-final/` directory. The earlier document-based HTTP comparison remains in `results/document-check/`, and the initial implementation report remains in `results/prototype/`. The public evaluator rounds latency to hundredths of a second. Performance numbers are measurements on this machine, not a deployment guarantee.
+The latest public-evaluator rerun (October 13, 2026), after the monorepo migration, is in the ignored `results/monorepo/evaluation/` directory. The earlier document-based HTTP comparison remains in `results/document-check/`, and the initial implementation report remains in `results/prototype/`. The public evaluator rounds latency to hundredths of a second. Performance numbers are measurements on this machine, not a deployment guarantee.
 
 All 40 supplied questions were also submitted to the running HTTP app. All 40 responses exactly matched the evaluator's answer text, confidence, sources, and conflict notes; HTTP p95 was 0.042 seconds. The status endpoint reported ready with five snapshots, and the conflict endpoint returned 122 entries. Browser checks of public questions dup-016 (current auto-loan APR), dup-006 (May certificate APY), and dup-145 (unpublished ARM rate) showed the expected results. The historical answer displayed and cited the May 19 snapshot.
 
@@ -34,7 +34,13 @@ The packaging changes add 11 publication-guard tests and three private-kit impor
 
 The multi-stage Docker build passed, including TypeScript and Vite compilation. A synthetic-data smoke test verified frontend assets, API readiness, a supported answer, inline validation, and conflict serialization. A separate local Compose run imported the private kit with networking disabled and loaded all five snapshots. Runtime checks confirmed UID 10001, read-only root and snapshot mount, a healthy status, and host binding only to 127.0.0.1:8080. No private data or container image was pushed.
 
-GitHub rejected server-side protection for the private repository because the account requires GitHub Pro. A local direct-main push guard and CI are installed, but they cannot substitute for enforced repository protection. See CONTRIBUTING.md for the intended policy and review order.
+GitHub rejected server-side protection for the private repository because the account requires GitHub Pro. A local direct-main push guard and CI are installed, but they cannot substitute for enforced repository protection. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the intended policy and feature-branch workflow.
+
+## Monorepo layout
+
+The application now lives in `backend/` and `frontend/`. Backend application tests are in `backend/tests/`; root `tests/` exercises repository tooling. The root test configuration collects both. Run the official evaluator from the repository root with `--submission backend/submission`; its private inputs and generated results remain at the root in ignored locations.
+
+After the migration, all 126 tests passed, including the standalone evaluator-folder test and HTTP/static-asset tests. The original evaluator ran in isolated standard-library-only Python mode against `backend/submission`, preserving 0.9574 QA and 1.0 repeat consistency with no errors or stale-value hits. The new Docker build passed frontend type checking and compilation, and the synthetic container smoke test passed with the new package paths. Moving the code does not resolve the correctness gaps listed below.
 
 ## Limits of these results
 
