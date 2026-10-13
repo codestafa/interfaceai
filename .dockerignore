@@ -1,0 +1,27 @@
+# Default-deny build context. Keep private kit content and local configuration out.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!harness/
+!harness/contract.py
+!submission/
+!submission/**/
+!submission/**/*.py
+!server/
+!server/*.py
+!scripts/
+!scripts/import_kit.py
+!web/
+!web/package.json
+!web/package-lock.json
+!web/index.html
+!web/tsconfig.json
+!web/vite.config.ts
+!web/src/
+!web/src/**/
+!web/src/**/*.ts
+!web/src/**/*.tsx
+!web/src/**/*.css
+!web/public/
+!web/public/favicon.svg
