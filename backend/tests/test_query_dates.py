@@ -2,9 +2,9 @@ from datetime import date
 
 import pytest
 
-from submission.knowledge.adapters.contract import Page, Snapshot
-from submission.knowledge.services.query import question_date
-from submission.solution import build
+from backend.submission.knowledge.adapters.contract import Page, Snapshot
+from backend.submission.knowledge.services.query import question_date
+from backend.submission.solution import build
 
 
 @pytest.mark.parametrize("text", [

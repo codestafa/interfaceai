@@ -2,15 +2,27 @@
 
 Keep changes small enough to review by responsibility. Use `codex/<topic>` branches and conventional commit messages such as `feat(core): resolve qualified snapshot facts`, `test(api): cover request validation`, and `docs(docker): explain local startup`.
 
-## Initial pull-request stack
+## Feature-branch workflow
 
-| Branch | Base | Responsibility |
-| --- | --- | --- |
-| `codex/knowledge-core` | `main` | Offline MVC engine, evaluator contract, synthetic backend tests, source-selection notes |
-| `codex/local-browser` | `codex/knowledge-core` | FastAPI delivery, React interface, inline question guidance |
-| `codex/docker-local-runtime` | `codex/local-browser` | Container build, private local kit import, container smoke check, complete setup documentation |
+Start each change from an up-to-date `main`, then open a pull request targeting `main`:
 
-Review and merge in that order. After merging a parent pull request, retarget its dependent pull request to `main` if GitHub has not already done so, update the branch, and wait for checks again. Do not force-push or merge a dependent branch while its parent is still under review. Open pull requests are review proposals; creating them does not merge the implementation into `main`.
+```sh
+git switch main
+git pull --ff-only
+git switch -c codex/short-topic
+```
+
+Keep commits focused on one responsibility. Run the affected package checks and the publication guard before pushing; CI runs the application tests, frontend build, and synthetic container smoke check. Review the final diff and wait for checks on the final commit before merging. Do not push directly to `main` or force-push shared branches.
+
+If a change must depend on another open pull request, name that dependency in its description. Merge the parent first, retarget the dependent request to `main`, update its branch, and rerun checks before merging. Creating a pull request does not authorize its merge.
+
+The initial implementation was reviewed in three layers: `codex/knowledge-core` for the MVC engine and contract, `codex/local-browser` for the API and React interface, and `codex/docker-local-runtime` for packaging and setup. Those branch names document the original review breakdown; new work should start from `main`.
+
+## Monorepo boundaries
+
+Keep React presentation and frontend dependencies in `frontend/`. Put HTTP delivery, the shared knowledge core, application tests, and Python dependencies in `backend/`. The `backend/submission/` directory must remain independently loadable by the supplied evaluator; do not introduce imports from the HTTP server or frontend into it.
+
+Root `scripts/` and `tests/` cover repository tooling, publication checks, and private-kit import. Docker, Compose, CI, and the root test configuration coordinate both packages. Keep root Python requirements as thin compatibility wrappers; declare dependency versions in `backend/requirements*.txt`.
 
 ## Main-branch policy
 

@@ -5,8 +5,8 @@ from threading import Event
 import pytest
 from fastapi.testclient import TestClient
 
-from server.app import create_app
-from submission.knowledge.adapters.contract import Answer, Conflict, Source
+from backend.server.app import create_app
+from backend.submission.knowledge.adapters.contract import Answer, Conflict, Source
 
 
 class RecordingEngine:

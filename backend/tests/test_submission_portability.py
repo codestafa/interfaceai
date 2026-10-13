@@ -8,9 +8,9 @@ import sys
 
 
 def test_submission_loads_from_renamed_folder_outside_project(tmp_path):
-    root = Path(__file__).resolve().parents[1]
+    root = Path(__file__).resolve().parents[2]
     team = tmp_path / "renamed_team"
-    shutil.copytree(root / "submission", team, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(root / "backend" / "submission", team, ignore=shutil.ignore_patterns("__pycache__"))
     (tmp_path / "harness").mkdir()
     shutil.copy2(root / "harness" / "contract.py", tmp_path / "harness" / "contract.py")
     script = """

@@ -37,7 +37,7 @@ __pycache__/
 .venv*/
 .pytest_cache/
 .coverage
-web/node_modules/
-web/dist/
-web/*.tsbuildinfo
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
 tmp/

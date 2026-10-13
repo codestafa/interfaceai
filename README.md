@@ -19,14 +19,12 @@ Docker builds the React frontend and Python backend into one image. One Uvicorn 
 ```bash
 git clone https://github.com/codestafa/interfaceai.git
 cd interfaceai
-# Until the initial PR stack merges, use the branch with the complete prototype:
-git switch codex/docker-local-runtime
 git config core.hooksPath .githooks
 docker compose version
 docker compose build
 ```
 
-After the initial pull requests merge, use `main` instead. See [the review workflow](CONTRIBUTING.md) for merge order and the current GitHub branch-protection limitation.
+Clone the default `main` branch for the integrated application. See [the review workflow](CONTRIBUTING.md) for feature branches, publication checks, and the current GitHub branch-protection limitation.
 
 The multi-stage build uses Node 22 for `npm ci` and the type-checked Vite build, then Python 3.11 for the runtime dependencies. The default-deny `.dockerignore` only admits application source, dependency declarations, frontend assets, the import script, and the contract dataclasses. Snapshots, archives, results, evaluation answers, the starter, assignment documents, `.git`, and `.env` files never enter the build context.
 
@@ -132,16 +130,16 @@ Requirements: Python 3.11 or newer, Node.js 22.12 or newer, and the supplied par
 
 ```bash
 python3.11 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-npm ci --prefix web
-npm run build --prefix web
+.venv/bin/python -m pip install -r backend/requirements-dev.txt
+npm ci --prefix frontend
+npm run build --prefix frontend
 .venv/bin/python scripts/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
-.venv/bin/python -m uvicorn server.app:app --host 127.0.0.1 --port 8000 --workers 1
+.venv/bin/python -m uvicorn backend.server.app:app --host 127.0.0.1 --port 8000 --workers 1
 ```
 
 Open [Knowledge Desk at localhost:8000](http://127.0.0.1:8000). The importer places the private snapshot archives, extracted snapshots, and official evaluation tools in ignored paths at the repository root. Without `--unpack`, the local server unpacks archives on first startup. To use another extracted directory, set `KNOWLEDGE_SNAPSHOTS` before the Uvicorn command. Run a single worker.
 
-For frontend development, leave the Python server running and run `npm run dev --prefix web` in another terminal. Vite proxies `/api` to port 8000. Its terminal output supplies the frontend development URL.
+For frontend development, leave the Python server running and run `npm run dev --prefix frontend` in another terminal. Vite proxies `/api` to port 8000. Its terminal output supplies the frontend development URL.
 
 ## Evaluate and test
 
@@ -149,14 +147,14 @@ The official evaluator, public questions, and starter remain local. Import the p
 
 ```bash
 .venv/bin/python scripts/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
-.venv/bin/python harness/run_eval.py --submission submission --eval eval/public_eval.jsonl --out results/prototype
+.venv/bin/python harness/run_eval.py --submission backend/submission --eval eval/public_eval.jsonl --out results/prototype
 .venv/bin/python -m pytest -q
-npm run build --prefix web
+npm run build --prefix frontend
 ```
 
-The unchanged supplied evaluator writes its summary and per-question results to the ignored `results/` directory. It loads `submission/solution.py` directly and does not require a running web server. Do not enable its optional paid LLM judge when measuring offline performance.
+The unchanged supplied evaluator writes its summary and per-question results to the ignored `results/` directory. It loads `backend/submission/solution.py` directly and does not require a running web server. Do not enable its optional paid LLM judge when measuring offline performance.
 
-Measured locally with the public 40-question set: **0.9574 QA score**, **1.0 repeat consistency**, **0.09 s answer p95**, and **4.1 s ingestion**, with no evaluation errors or forbidden stale-value hits. The backend and publication suite has **126 passing tests**, including 11 publication-guard tests and three kit-import tests; TypeScript checking and the production frontend build pass. The container passed both a synthetic-data smoke test and a local run with all five supplied snapshots. These are recorded measurements, not guarantees for other machines or hidden tests. See [evaluation details](docs/evaluation.md).
+Measured locally with the public 40-question set: **0.9574 QA score**, **1.0 repeat consistency**, **0.09 s answer p95**, and **4.0 s ingestion**, with no evaluation errors or forbidden stale-value hits. The backend and publication suite has **126 passing tests**, including 11 publication-guard tests and three kit-import tests; TypeScript checking and the production frontend build pass. The container passed both a synthetic-data smoke test and a local run with all five supplied snapshots. These are recorded measurements, not guarantees for other machines or hidden tests. See [evaluation details](docs/evaluation.md).
 
 Run the container smoke test independently after building:
 
@@ -178,9 +176,29 @@ The public score does not establish complete requirement coverage. The supplied 
 
 ## Architecture and API
 
-- **Model:** immutable evidence and fact records, complete snapshot membership, extraction, retrieval, date selection, and source resolution under `submission/knowledge/`.
-- **Controller:** `submission/solution.py` constructs the shared controller implementing `ingest`, `answer`, and `conflicts`. `server/` loads the kit and exposes the controller over HTTP.
-- **View:** Python presenters format answers and contract objects; `web/` renders results without implementing knowledge rules.
+The monorepo separates the browser interface from the Python application. Run the documented commands from the repository root unless a package README says otherwise.
+
+```text
+interfaceai/
+├── frontend/               # React, TypeScript, Vite; compiled output in dist/
+├── backend/
+│   ├── server/             # FastAPI endpoints and local snapshot loading
+│   ├── submission/         # Self-contained evaluator entrypoint and MVC core
+│   ├── tests/              # Knowledge-core and HTTP tests with synthetic data
+│   └── requirements*.txt   # Python runtime and development dependencies
+├── harness/contract.py     # Published interface dataclasses only
+├── scripts/                # Local kit import, publication guard, container smoke test
+├── tests/                  # Repository-tooling tests
+├── docs/                   # Verification records
+├── Dockerfile              # Frontend build and Python runtime stages
+└── compose.yaml            # Local service and read-only snapshot mount
+```
+
+[Frontend development](frontend/README.md) and [backend development](backend/README.md) have package-specific commands. Root `requirements*.txt` files are compatibility wrappers around the backend declarations. The root test configuration runs both application and tooling tests. The private kit's remaining `harness/`, `eval/`, snapshot, and result files stay in ignored locations at the root; they are not packages to publish.
+
+- **Model:** immutable evidence and fact records, complete snapshot membership, extraction, retrieval, date selection, and source resolution under `backend/submission/knowledge/`.
+- **Controller:** `backend/submission/solution.py` constructs the shared controller implementing `ingest`, `answer`, and `conflicts`. `backend/server/` loads the kit and exposes the controller over HTTP.
+- **View:** Python presenters format answers and contract objects; `frontend/` renders results without implementing knowledge rules.
 
 The knowledge core uses the Python standard library. FastAPI and Uvicorn deliver the HTTP app. Node is needed only for building or developing the browser interface.
 
