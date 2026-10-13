@@ -28,7 +28,7 @@ Keep React presentation and frontend dependencies in `frontend/`. Put HTTP deliv
 
 The intended GitHub protection requires a pull request, one approving review, dismissal of stale approvals, resolved review conversations, an up-to-date passing `quality` check, and linear history. It applies to administrators and blocks branch deletion and force pushes. Repository settings are authoritative; a policy file alone cannot enforce protection. Squash merging keeps each reviewed change coherent.
 
-**Current limitation:** GitHub rejected branch protection for this private repository because the account requires GitHub Pro. The repository remains private; server-side protection is not enabled. Enable the policy above in repository settings once the account supports it. Do not treat a passing workflow or these instructions as an enforced merge restriction.
+**Current status (October 13, 2026):** This repository is public. GitHub reports that `main` is not protected; the policy above has not been enabled. Check repository settings for the current status. A passing workflow and local hooks do not enforce GitHub merge restrictions.
 
 Enable the local pre-push guard in each clone:
 
@@ -36,7 +36,7 @@ Enable the local pre-push guard in each clone:
 git config core.hooksPath tools/git-hooks
 ```
 
-The guard rejects direct pushes to `main` and scans every unpublished commit before feature-branch pushes. Hooks can be bypassed and do not protect merges through GitHub, so this is only a local safeguard while server-side protection is unavailable.
+The guard rejects direct pushes to `main` and scans every unpublished commit before feature-branch pushes. Hooks can be bypassed and do not protect merges through GitHub, so this is only a local safeguard while server-side protection is not enabled.
 
 ## Publication checks
 
