@@ -34,7 +34,7 @@ The packaging changes add 11 publication-guard tests and four private-kit import
 
 The multi-stage Docker build passed, including TypeScript and Vite compilation. A synthetic-data smoke test verified frontend assets, API readiness, a supported answer, inline validation, and conflict serialization. A separate local Compose run imported the private kit with networking disabled and loaded all five snapshots. Runtime checks confirmed UID 10001, read-only root and snapshot mount, a healthy status, and host binding only to 127.0.0.1:8080. No private data or container image was pushed.
 
-GitHub rejected server-side protection for the private repository because the account requires GitHub Pro. A local direct-main push guard and CI are installed, but they cannot substitute for enforced repository protection. See [CONTRIBUTING.md](CONTRIBUTING.md) for the intended policy and feature-branch workflow.
+The repository is public. A GitHub check on October 13, 2026 confirmed that `main` is not protected. A local direct-main push guard and CI are installed, but they cannot substitute for enforced repository protection. See [CONTRIBUTING.md](CONTRIBUTING.md) for the intended policy and feature-branch workflow.
 
 ## Monorepo layout
 

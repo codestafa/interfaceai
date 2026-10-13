@@ -13,7 +13,7 @@ python3.11 -m venv .venv
 
 The importer keeps the organizer's private data and evaluator files in ignored root paths. To use an existing extracted dataset, set `KNOWLEDGE_SNAPSHOTS` to the directory containing the snapshot folders before starting Uvicorn. The app loads snapshots in the background; `/api/status` reports readiness. Use one worker so the process owns one in-memory index.
 
-For the browser interface, run `npm ci --prefix frontend` and `npm run build --prefix frontend`; FastAPI serves `frontend/dist`. Alternatively, run the frontend's Vite development server alongside this API. [Docker setup](../README.md#run-with-docker) builds and runs both packages together.
+For the browser interface, run `npm ci --prefix frontend` and `npm run build --prefix frontend`; FastAPI serves `frontend/dist`. Alternatively, run the frontend's Vite development server alongside this API. [Docker setup](../docs/docker.md) builds and runs both packages together.
 
 ## Code boundaries
 
@@ -34,4 +34,23 @@ Keep `submission/` portable: the evaluator can load it independently of the HTTP
 .venv/bin/python harness/run_eval.py --submission backend/submission --eval eval/public_eval.jsonl --out results/prototype
 ```
 
-The evaluator requires a locally imported participant kit and does not require a running server. Use `.venv/bin/python -m pytest -c backend/pyproject.toml -q` from the root to include repository-tooling tests. Evaluation outputs remain in ignored `results/`; do not commit private source material, evaluation answers, or credentials. See [recorded results and limitations](../docs/evaluation.md) and [source-selection rules](../docs/NOTES.md).
+The evaluator loads `backend/submission/solution.py` directly and does not require a running server. Import the kit into the repository root before evaluating, even if you already prepared `data/` for Docker. Results stay in ignored `results/`; keep the optional paid LLM judge disabled when measuring offline performance.
+
+Use `.venv/bin/python -m pytest -c backend/pyproject.toml -q` from the root to include repository-tooling tests. Do not commit private source material, evaluation answers, or credentials. See [recorded results and limitations](../docs/evaluation.md) and [source-selection rules](../docs/NOTES.md).
+
+## HTTP API
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/status` | Loading state, snapshot dates, and loading errors |
+| `POST /api/answer` | Answer, confidence, citations, and conflict explanation |
+| `POST /api/validate` | Inline guidance and whether clarification is required |
+| `GET /api/conflicts` | The same detected-conflict inventory used by the evaluator |
+
+Both POST endpoints accept `{"question":"...","as_of":"2026-05-31"}`; `as_of` is optional and takes precedence over a date in the question. The answer endpoint applies the same validation rules as the inline helper. Malformed requests receive HTTP 422; requests before readiness receive HTTP 503. Unavailable evidence returns a normal answer with `confident: false`.
+
+```sh
+curl --fail http://127.0.0.1:8000/api/answer \
+  -H 'Content-Type: application/json' \
+  -d '{"question":"What is Dupaco’s routing number?"}'
+```
