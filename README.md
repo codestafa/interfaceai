@@ -2,6 +2,10 @@
 
 A local knowledge prototype for the credit-union snapshot assignment. Ask about Dupaco's accounts, rates, branches, membership, and policies using five saved website versions. Answers include source excerpts and dates; the app also exposes detected disagreements between sources.
 
+![App demo: enter a question, read the supported answer, expand its source evidence, and ask about an earlier date.](docs/media/app-demo.gif)
+
+*25-second demo recorded in the app with synthetic example data. Displayed rates are illustrative, not actual offers; no private participant content is included.*
+
 The browser and evaluator use the same deterministic Python knowledge controller. **No API key, language model, account, or paid service is required.** Dependency installation and Docker image builds need internet access; answering questions uses only local snapshot files.
 
 The browser starts with one question field and a **Get answer** action. Open **How we found this** after an answer to inspect evidence. **Options** reveals the historical date control, and a secondary link opens source disagreements. After a 600 ms typing pause, a helper suggests missing details or explains invalid input. Optional hints allow broad questions. There is no saved question history.
