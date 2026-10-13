@@ -4,7 +4,7 @@ from zipfile import ZipFile
 
 import pytest
 
-from scripts.import_kit import import_kit
+from tools.import_kit import import_kit
 
 
 def write_kit(path: Path, *, unsafe_snapshot: bool = False, contract: str = "contract"):
@@ -34,11 +34,13 @@ def test_local_import_preserves_official_files_and_unpacks_for_read_only_mount(t
     assert path.stat().st_mtime_ns == timestamp
 
 
-def test_import_rejects_different_contract_before_writing(tmp_path):
+@pytest.mark.parametrize("contract_path", ["harness/contract.py", "backend/harness/contract.py"])
+def test_import_rejects_different_contract_before_writing(tmp_path, contract_path):
     archive, destination = tmp_path / "kit.zip", tmp_path / "local"
     write_kit(archive)
-    (destination / "harness").mkdir(parents=True)
-    (destination / "harness/contract.py").write_text("existing contract")
+    contract = destination / contract_path
+    contract.parent.mkdir(parents=True)
+    contract.write_text("existing contract")
     with pytest.raises(ValueError, match="contract differs"):
         import_kit(archive, destination)
     assert not (destination / "snapshots_zip").exists()

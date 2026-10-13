@@ -47,9 +47,10 @@ def import_kit(archive: Path, destination: Path, *, unpack: bool = False) -> int
             target = destination / str(relative)
             if not target.resolve().is_relative_to(destination.resolve()):
                 raise ValueError("A kit path escapes the destination.")
-            if relative.as_posix() == "harness/contract.py" and target.exists():
-                if target.read_bytes() != kit.read(member):
-                    raise ValueError("The supplied contract differs from this prototype; review compatibility before replacing it.")
+            if relative.as_posix() == "harness/contract.py":
+                for contract in (target, destination / "backend/harness/contract.py"):
+                    if contract.is_file() and contract.read_bytes() != kit.read(member):
+                        raise ValueError("The supplied contract differs from this prototype; review compatibility before replacing it.")
             selected.append((member, target))
         count = sum(target.parent.name == "snapshots_zip" for _, target in selected)
         if not count:

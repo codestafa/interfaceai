@@ -25,18 +25,18 @@ jobs:
           python-version: '3.11'
 
       - name: Check publication contents
-        run: python scripts/check_publication.py --ref HEAD
+        run: python tools/check_publication.py --ref HEAD
 
       - name: Test publication guard
-        run: python -m unittest discover -s tests -p test_publication.py
+        run: python -m unittest discover -s tools/tests -p test_publication.py
 
       - name: Install backend dependencies
-        if: hashFiles('requirements-dev.txt') != ''
-        run: python -m pip install -r requirements-dev.txt
+        if: hashFiles('backend/requirements-dev.txt') != ''
+        run: python -m pip install -r backend/requirements-dev.txt
 
       - name: Test backend
-        if: hashFiles('requirements-dev.txt') != ''
-        run: python -m pytest -q
+        if: hashFiles('backend/requirements-dev.txt') != ''
+        run: python -m pytest -c backend/pyproject.toml -q
 
       - name: Set up Node
         if: hashFiles('frontend/package-lock.json') != ''
@@ -54,9 +54,9 @@ jobs:
           npm run build
 
       - name: Build local container
-        if: hashFiles('Dockerfile') != ''
-        run: docker build --tag snapshot-knowledge-desk:ci .
+        if: hashFiles('tools/Dockerfile') != ''
+        run: docker build -f tools/Dockerfile --tag snapshot-knowledge-desk:ci .
 
       - name: Smoke test container with synthetic data
-        if: hashFiles('Dockerfile') != '' && hashFiles('scripts/smoke_container.py') != ''
-        run: python scripts/smoke_container.py --image snapshot-knowledge-desk:ci
+        if: hashFiles('tools/Dockerfile') != '' && hashFiles('tools/smoke_container.py') != ''
+        run: python tools/smoke_container.py --image snapshot-knowledge-desk:ci

@@ -3,8 +3,7 @@
 /snapshots_zip/
 /eval/
 /starter/
-/harness/*
-!/harness/contract.py
+/harness/
 /docs/assignment.md
 *.pdf
 *.zip

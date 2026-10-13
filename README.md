@@ -19,12 +19,12 @@ Docker builds the React frontend and Python backend into one image. One Uvicorn 
 ```bash
 git clone https://github.com/codestafa/interfaceai.git
 cd interfaceai
-git config core.hooksPath .githooks
+git config core.hooksPath tools/git-hooks
 docker compose version
 docker compose build
 ```
 
-Clone the default `main` branch for the integrated application. See [the review workflow](CONTRIBUTING.md) for feature branches, publication checks, and the current GitHub branch-protection limitation.
+Clone the default `main` branch for the integrated application. See [the review workflow](docs/CONTRIBUTING.md) for feature branches, publication checks, and the current GitHub branch-protection limitation.
 
 The multi-stage build uses Node 22 for `npm ci` and the type-checked Vite build, then Python 3.11 for the runtime dependencies. The default-deny `.dockerignore` only admits application source, dependency declarations, frontend assets, the import script, and the contract dataclasses. Snapshots, archives, results, evaluation answers, the starter, assignment documents, `.git`, and `.env` files never enter the build context.
 
@@ -40,7 +40,7 @@ docker run --rm --network none --read-only \
   --mount "type=bind,source=$KIT_ARCHIVE,target=/kit/participant.zip,readonly" \
   --mount "type=bind,source=$(pwd)/data,target=/data" \
   knowledge-desk:local \
-  python scripts/import_kit.py /kit/participant.zip --destination /data --unpack
+  python tools/import_kit.py /kit/participant.zip --destination /data --unpack
 ```
 
 The result includes `data/snapshots/<snapshot-id>/manifest.json` and each snapshot's Markdown files. Only `data/snapshots/` is mounted into the running app. Supplied evaluator files imported beside it are for local evaluation, not part of the application image.
@@ -133,7 +133,7 @@ python3.11 -m venv .venv
 .venv/bin/python -m pip install -r backend/requirements-dev.txt
 npm ci --prefix frontend
 npm run build --prefix frontend
-.venv/bin/python scripts/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
+.venv/bin/python tools/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
 .venv/bin/python -m uvicorn backend.server.app:app --host 127.0.0.1 --port 8000 --workers 1
 ```
 
@@ -146,20 +146,21 @@ For frontend development, leave the Python server running and run `npm run dev -
 The official evaluator, public questions, and starter remain local. Import the participant kit into the repository root before running these commands, even if you previously prepared `data/` for Docker:
 
 ```bash
-.venv/bin/python scripts/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
+.venv/bin/python tools/import_kit.py /path/to/hackathon-knowledge-kit-participant.zip --unpack
 .venv/bin/python harness/run_eval.py --submission backend/submission --eval eval/public_eval.jsonl --out results/prototype
-.venv/bin/python -m pytest -q
+.venv/bin/python -m pytest -c backend/pyproject.toml -q
 npm run build --prefix frontend
 ```
 
 The unchanged supplied evaluator writes its summary and per-question results to the ignored `results/` directory. It loads `backend/submission/solution.py` directly and does not require a running web server. Do not enable its optional paid LLM judge when measuring offline performance.
 
-Measured locally with the public 40-question set: **0.9574 QA score**, **1.0 repeat consistency**, **0.09 s answer p95**, and **4.0 s ingestion**, with no evaluation errors or forbidden stale-value hits. The backend and publication suite has **126 passing tests**, including 11 publication-guard tests and three kit-import tests; TypeScript checking and the production frontend build pass. The container passed both a synthetic-data smoke test and a local run with all five supplied snapshots. These are recorded measurements, not guarantees for other machines or hidden tests. See [evaluation details](docs/evaluation.md).
+Measured locally with the public 40-question set: **0.9574 QA score**, **1.0 repeat consistency**, **0.09 s answer p95**, and **4.1 s ingestion**, with no evaluation errors or forbidden stale-value hits. The backend and publication suite has **127 passing tests**, including 11 publication-guard tests and four kit-import cases; TypeScript checking and the production frontend build pass. The container passed both a synthetic-data smoke test and a local run with all five supplied snapshots. These are recorded measurements, not guarantees for other machines or hidden tests. See [evaluation details](docs/evaluation.md).
 
-Run the container smoke test independently after building:
+To build the image directly without Compose and run its smoke test:
 
 ```bash
-python3 scripts/smoke_container.py --image knowledge-desk:local
+docker build -f tools/Dockerfile -t knowledge-desk:local .
+python3 tools/smoke_container.py --image knowledge-desk:local
 ```
 
 It generates its own temporary evidence, checks the UI assets and API, and removes its test container. GitHub CI uses this synthetic check and does not have access to the private participant dataset.
@@ -172,7 +173,7 @@ The requirement audit identified three gaps that remain open:
 2. Different snapshots claiming different values for the same explicit applicable period are not always compared for conflict.
 3. A broad request for every savings-account APY can omit a product, such as Launchpad, even when its evidence is present.
 
-The public score does not establish complete requirement coverage. The supplied scorer cannot fully assess the broad certificate-list answer, which was manually reviewed, and the final conflict gold set is unavailable. The query interpreter supports focused wording and qualifiers; it is not an unrestricted conversational model. Heavy typos and unsupported languages can result in uncertainty. See [NOTES.md](NOTES.md) for source-selection rules and other boundaries.
+The public score does not establish complete requirement coverage. The supplied scorer cannot fully assess the broad certificate-list answer, which was manually reviewed, and the final conflict gold set is unavailable. The query interpreter supports focused wording and qualifiers; it is not an unrestricted conversational model. Heavy typos and unsupported languages can result in uncertainty. See [NOTES.md](docs/NOTES.md) for source-selection rules and other boundaries.
 
 ## Architecture and API
 
@@ -180,21 +181,24 @@ The monorepo separates the browser interface from the Python application. Run th
 
 ```text
 interfaceai/
-├── frontend/               # React, TypeScript, Vite; compiled output in dist/
+├── .github/                # CI and pull-request template
 ├── backend/
 │   ├── server/             # FastAPI endpoints and local snapshot loading
 │   ├── submission/         # Self-contained evaluator entrypoint and MVC core
+│   ├── harness/contract.py # Published interface dataclasses only
 │   ├── tests/              # Knowledge-core and HTTP tests with synthetic data
+│   ├── pyproject.toml      # Python metadata and shared pytest configuration
 │   └── requirements*.txt   # Python runtime and development dependencies
-├── harness/contract.py     # Published interface dataclasses only
-├── scripts/                # Local kit import, publication guard, container smoke test
-├── tests/                  # Repository-tooling tests
-├── docs/                   # Verification records
-├── Dockerfile              # Frontend build and Python runtime stages
+├── frontend/               # React, TypeScript, Vite; compiled output in dist/
+├── docs/                   # Contribution guide, design notes, verification records
+├── tools/                  # Kit import, publication guard, container smoke test
+│   ├── git-hooks/          # Local pre-push guard
+│   ├── tests/              # Repository-tooling tests
+│   └── Dockerfile          # Frontend build and Python runtime stages
 └── compose.yaml            # Local service and read-only snapshot mount
 ```
 
-[Frontend development](frontend/README.md) and [backend development](backend/README.md) have package-specific commands. Root `requirements*.txt` files are compatibility wrappers around the backend declarations. The root test configuration runs both application and tooling tests. The private kit's remaining `harness/`, `eval/`, snapshot, and result files stay in ignored locations at the root; they are not packages to publish.
+[Frontend development](frontend/README.md) and [backend development](backend/README.md) have package-specific commands. Install Python dependencies from `backend/requirements.txt` or `backend/requirements-dev.txt`. The configuration in `backend/pyproject.toml` collects both application and tooling tests when selected with `-c`. The private kit's `harness/`, `eval/`, snapshot, and result files stay in ignored locations at the root; they are not packages to publish.
 
 - **Model:** immutable evidence and fact records, complete snapshot membership, extraction, retrieval, date selection, and source resolution under `backend/submission/knowledge/`.
 - **Controller:** `backend/submission/solution.py` constructs the shared controller implementing `ingest`, `answer`, and `conflicts`. `backend/server/` loads the kit and exposes the controller over HTTP.
@@ -213,6 +217,6 @@ Both POST endpoints accept `{"question":"...","as_of":"2026-05-31"}`; `as_of` is
 
 ## Data handling
 
-Keep the organizer's snapshot content, archives, public evaluation answers, starter files, assignment documents, generated results, and any local environment files out of Git. The supplied `harness/contract.py` contains only interface dataclasses and is the one harness file required by the published application. The default-deny Docker context independently excludes private material, including files already present on your machine.
+Keep the organizer's snapshot content, archives, public evaluation answers, starter files, assignment documents, generated results, and any local environment files out of Git. The published `backend/harness/contract.py` contains only interface dataclasses and is the one harness file required by the published application. The default-deny Docker context independently excludes private material, including files already present on your machine.
 
 The application does not fetch live websites, send questions to an AI provider, or save question history. Source URLs are evidence links; you may choose to open one in your browser. No API keys or credentials are needed for building or running this prototype.
