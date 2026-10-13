@@ -1,0 +1,43 @@
+# Private participant material and local outputs must never be published.
+/snapshots/
+/snapshots_zip/
+/eval/
+/starter/
+/harness/*
+!/harness/contract.py
+/docs/assignment.md
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+/results/
+/data/
+/local-data/
+/.local-data/
+
+# Credentials and machine-specific configuration.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+.aws/
+.ssh/
+.codex/
+.agents/
+
+# Generated files and installed dependencies.
+__pycache__/
+*.pyc
+.DS_Store
+.venv*/
+.pytest_cache/
+.coverage
+web/node_modules/
+web/dist/
+web/*.tsbuildinfo
+tmp/
